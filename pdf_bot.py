@@ -52,7 +52,7 @@ def main():
     st.header("📄Chat with your pdf file")
 
     # upload a your pdf file
-    pdf = st.file_uploader("Upload your PDF", type="pdf")
+    pdf = st.file_uploader("Upload your PDF", type="pdf", accept_multiple_files=True)
 
     if pdf is not None:
         pdf_reader = PdfReader(pdf)
