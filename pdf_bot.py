@@ -54,8 +54,10 @@ def main():
     # upload a your pdf file
     pdf = st.file_uploader("Upload your PDF", type="pdf", accept_multiple_files=True)
 
-    for file in pdf:
-        if file is not None:
+    
+    if pdf is not None:
+        for file in pdf:
+        
             pdf_reader = PdfReader(file)
 
             text = ""
@@ -85,6 +87,23 @@ def main():
             qa = RetrievalQA.from_chain_type(
                 llm=llm, chain_type="stuff", retriever=vectorstore.as_retriever()
             )
+
+    else:   
+        st.subheader("No PDF file uploaded.Searching for answers...") 
+        store = Neo4jVector.from_existing_graph(
+            index_name="pdf_bot",   
+            url=url,    
+            username=username,  
+            password=password,  
+            node_label="PdfBotChunk",   
+            embedding=embeddings    ,   
+            pre_delete_collection=False    # Keep the data
+
+        )
+        qa = RetrievalQA.from_chain_type(
+                llm=llm, chain_type="stuff", retriever=store.as_retriever()
+            )
+    
 
     # Accept user questions/query
     query = st.text_input("Ask questions about your PDF files")
