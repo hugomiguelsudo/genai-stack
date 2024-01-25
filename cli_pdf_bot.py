@@ -54,12 +54,13 @@ def main():
     # upload a your pdf file
     #pdf = st.file_uploader("Upload your PDF", type="pdf")
     pdf_dir = "/Users/hugomiguel/Downloads/PDFs\ sharepoint\ Magicbeans\ 23\ Jan\ 2014" 
+    
     for filename in os.listdir(pdf_dir):
         if filename.endswith('.pdf'):
             pdf_file = open(os.path.join(pdf_dir, filename), 'rb')
         
         if pdf_file is not None:
-            pdf_reader = PdfReader(pdf)
+            pdf_reader = PdfReader(pdf_file)
 
             text = ""
             for page in pdf_reader.pages:
