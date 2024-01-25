@@ -5,7 +5,8 @@ from langchain.vectorstores.neo4j_vector import Neo4jVector
 from dotenv import load_dotenv
 from streamlit.logger import get_logger
 from chains import (
-    load_embedding_model
+    load_embedding_model,
+    load_llm
 )
 
 class PDFtoNeo4j:
