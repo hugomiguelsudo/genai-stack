@@ -2,6 +2,7 @@ openai==0.28.1
 python-dotenv
 wikipedia
 tiktoken
+langchain-community
 neo4j
 streamlit
 sentence_transformers==2.2.2

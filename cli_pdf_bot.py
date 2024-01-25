@@ -49,43 +49,48 @@ llm = load_llm(llm_name, logger=logger, config={"ollama_base_url": ollama_base_u
 
 
 def main():
-    st.header("📄Chat with your pdf file")
+#    st.header("📄Chat with your pdf file")
 
     # upload a your pdf file
-    pdf = st.file_uploader("Upload your PDF", type="pdf")
+    #pdf = st.file_uploader("Upload your PDF", type="pdf")
+    pdf_dir = "/Users/hugomiguel/Downloads/PDFs\ sharepoint\ Magicbeans\ 23\ Jan\ 2014" 
+    for filename in os.listdir(pdf_dir):
+        if filename.endswith('.pdf'):
+            pdf_file = open(os.path.join(pdf_dir, filename), 'rb')
+        
+        if pdf_file is not None:
+            pdf_reader = PdfReader(pdf)
 
-    if pdf is not None:
-        pdf_reader = PdfReader(pdf)
+            text = ""
+            for page in pdf_reader.pages:
+                text += page.extract_text()
 
-        text = ""
-        for page in pdf_reader.pages:
-            text += page.extract_text()
+            # langchain_textspliter
+            text_splitter = RecursiveCharacterTextSplitter(
+                chunk_size=1000, chunk_overlap=200, length_function=len
+            )
 
-        # langchain_textspliter
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000, chunk_overlap=200, length_function=len
-        )
+            chunks = text_splitter.split_text(text=text)
 
-        chunks = text_splitter.split_text(text=text)
+            # Store the chunks part in db (vector)
+            vectorstore = Neo4jVector.from_texts(
+                chunks,
+                url=url,
+                username=username,
+                password=password,
+                embedding=embeddings,
+                index_name="pdf_bot",
+                node_label="PdfBotChunk",
+                pre_delete_collection=True,  # Delete existing PDF data
+            )
 
-        # Store the chunks part in db (vector)
-        vectorstore = Neo4jVector.from_texts(
-            chunks,
-            url=url,
-            username=username,
-            password=password,
-            embedding=embeddings,
-            index_name="pdf_bot",
-            node_label="PdfBotChunk",
-            pre_delete_collection=False,  # Fucking KEEP the DATA!!!!!! 
-            #pre_delete_collection=True,  # Delete existing PDF data
-        )
+
         qa = RetrievalQA.from_chain_type(
             llm=llm, chain_type="stuff", retriever=vectorstore.as_retriever()
         )
 
         # Accept user questions/query
-        query = st.text_input("Ask questions about your PDF files")
+        query = st.text_input("Ask questions about your PDF file")
 
         if query:
             stream_handler = StreamHandler(st.empty())
