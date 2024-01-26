@@ -80,7 +80,7 @@ def main():
                 pre_delete_collection=False,  # Fucking KEEP the DATA!!!!!! 
                 #pre_delete_collection=True,  # Delete existing PDF data
             )
-            qa = RetrievalQAWithSourcesChain.from_chain_type(
+            qa = RetrievalQA.from_chain_type(
                 llm=llm, chain_type="stuff", retriever=vectorstore.as_retriever()
             )
          # Accept user questions/query
@@ -100,7 +100,7 @@ def main():
             embedding=embeddings     
             #pre_delete_collection=False    # Keep the data
         )
-        qa = RetrievalQAWithSourcesChain.from_chain_type(
+        qa = RetrievalQA.from_chain_type(
             llm=llm, chain_type="stuff", retriever=store.as_retriever()
             )
         # Accept user questions/query
