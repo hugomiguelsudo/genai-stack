@@ -55,22 +55,17 @@ def main():
     pdf = st.file_uploader("Upload your PDF", type="pdf", accept_multiple_files=True)
 
     
-    if pdf is not None:
-        for file in pdf:
-        
+    if len(pdf) > 0 :
+        for file in pdf:        
             pdf_reader = PdfReader(file)
-
             text = ""
             for page in pdf_reader.pages:
                 text += page.extract_text()
-
             # langchain_textspliter
             text_splitter = RecursiveCharacterTextSplitter(
                 chunk_size=1000, chunk_overlap=200, length_function=len
             )
-
             chunks = text_splitter.split_text(text=text)
-
             # Store the chunks part in db (vector)
             vectorstore = Neo4jVector.from_texts(
                 chunks,
@@ -83,35 +78,35 @@ def main():
                 pre_delete_collection=False,  # Fucking KEEP the DATA!!!!!! 
                 #pre_delete_collection=True,  # Delete existing PDF data
             )
-
             qa = RetrievalQA.from_chain_type(
                 llm=llm, chain_type="stuff", retriever=vectorstore.as_retriever()
             )
+         # Accept user questions/query
+        query = st.text_input("Ask questions about your PDF files")
+        if query:
+            stream_handler = StreamHandler(st.empty())
+            qa.run(query, callbacks=[stream_handler])
 
-    else:   
+    if len(pdf) == 0 :
         st.subheader("No PDF file uploaded.Searching for answers...") 
-        store = Neo4jVector.from_existing_graph(
+        store = Neo4jVector.from_existing_index(
             index_name="pdf_bot",   
             url=url,    
             username=username,  
             password=password,  
             node_label="PdfBotChunk",   
-            embedding=embeddings    ,   
-            pre_delete_collection=False    # Keep the data
-
+            embedding=embeddings     
+            #pre_delete_collection=False    # Keep the data
         )
         qa = RetrievalQA.from_chain_type(
-                llm=llm, chain_type="stuff", retriever=store.as_retriever()
+            llm=llm, chain_type="stuff", retriever=store.as_retriever()
             )
-    
+        # Accept user questions/query
+        query = st.text_input("Ask questions about your PDF files")
 
-    # Accept user questions/query
-    query = st.text_input("Ask questions about your PDF files")
-
-    if query:
-        stream_handler = StreamHandler(st.empty())
-        qa.run(query, callbacks=[stream_handler])
-
+        if query:
+            stream_handler = StreamHandler(st.empty())
+            qa.run(query, callbacks=[stream_handler])
 
 if __name__ == "__main__":
     main()
