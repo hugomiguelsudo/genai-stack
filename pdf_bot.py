@@ -50,10 +50,11 @@ llm = load_llm(llm_name, logger=logger, config={"ollama_base_url": ollama_base_u
 
 
 def main():
-    st.header("📄Chat with your pdf file")
+    st.header("📄Ask Magicbeans")
+    #st.header("📄Chat with your pdf file")
 
     # upload a your pdf file
-    pdf = st.file_uploader("Upload your PDF", type="pdf", accept_multiple_files=True)
+    pdf = st.file_uploader("Upload your PDFs", type="pdf", accept_multiple_files=True)
 
     
     if len(pdf) > 0 :
@@ -79,7 +80,7 @@ def main():
                 pre_delete_collection=False,  # Fucking KEEP the DATA!!!!!! 
                 #pre_delete_collection=True,  # Delete existing PDF data
             )
-            qa = RetrievalQA.from_chain_type(
+            qa = RetrievalQAWithSourcesChain.from_chain_type(
                 llm=llm, chain_type="stuff", retriever=vectorstore.as_retriever()
             )
          # Accept user questions/query
