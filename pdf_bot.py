@@ -2,6 +2,7 @@ import os
 
 import streamlit as st
 from langchain.chains import RetrievalQA
+from langchain.chains import RetrievalQAWithSourcesChain
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.callbacks.base import BaseCallbackHandler
@@ -98,7 +99,7 @@ def main():
             embedding=embeddings     
             #pre_delete_collection=False    # Keep the data
         )
-        qa = RetrievalQA.from_chain_type(
+        qa = RetrievalQAWithSourcesChain.from_chain_type(
             llm=llm, chain_type="stuff", retriever=store.as_retriever()
             )
         # Accept user questions/query
